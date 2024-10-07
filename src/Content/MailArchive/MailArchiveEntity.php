@@ -28,8 +28,6 @@ class MailArchiveEntity extends Entity
 
     protected ?string $transportState;
 
-    protected bool $historyLastMail;
-
     /**
      * @deprecated will not be filled anyone. Use emlPath instead
      */
@@ -53,6 +51,8 @@ class MailArchiveEntity extends Entity
     protected ?self $parent = null;
 
     protected ?MailArchiveCollection $children = null;
+
+    protected string $historyGroupId;
 
 
     /**
@@ -210,16 +210,6 @@ class MailArchiveEntity extends Entity
         $this->transportState = $transportState;
     }
 
-    public function isHistoryLastMail(): bool
-    {
-        return $this->historyLastMail;
-    }
-
-    public function setHistoryLastMail(bool $historyLastMail): void
-    {
-        $this->historyLastMail = $historyLastMail;
-    }
-
     public function getParentId(): ?string
     {
         return $this->parentId;
@@ -248,5 +238,10 @@ class MailArchiveEntity extends Entity
     public function setChildren(MailArchiveCollection $children): void
     {
         $this->children = $children;
+    }
+
+    public function isHistoryGroupId(): string
+    {
+        return $this->historyGroupId;
     }
 }

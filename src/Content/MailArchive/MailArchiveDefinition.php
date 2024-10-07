@@ -4,7 +4,6 @@ namespace Frosh\MailArchive\Content\MailArchive;
 
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
@@ -12,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
@@ -47,6 +47,7 @@ class MailArchiveDefinition extends EntityDefinition
             new ParentFkField(self::class),
             new ParentAssociationField(self::class, 'id'),
             new ChildrenAssociationField(self::class),
+            (new IdField('history_group_id', 'historyGroupId'))->addFlags(new WriteProtected()),
 
             (new JsonField('sender', 'sender'))->addFlags(new Required()),
             (new JsonField('receiver', 'receiver'))->addFlags(new Required())->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
@@ -56,7 +57,6 @@ class MailArchiveDefinition extends EntityDefinition
             (new LongTextField('eml', 'eml'))->addFlags(new AllowHtml()),
             (new StringField('eml_path', 'emlPath', 2048)),
             (new StringField('transport_state', 'transportState'))->addFlags(new Required()),
-            new BoolField('history_last_mail', 'historyLastMail'),
 
             (new OneToManyAssociationField('attachments', MailArchiveAttachmentDefinition::class, 'mail_archive_id', 'id'))->addFlags(new CascadeDelete()),
 

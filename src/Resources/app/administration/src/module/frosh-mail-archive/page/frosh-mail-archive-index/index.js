@@ -103,7 +103,7 @@ Component.register('frosh-mail-archive-index', {
             }
 
             if (this.filter.onlyLastMailInHistory) {
-                criteria.addFilter(Criteria.equals('historyLastMail', true));
+                criteria.addGrouping('historyGroupId');
             }
 
             if (this.filter.salesChannelId) {

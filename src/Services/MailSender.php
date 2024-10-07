@@ -11,8 +11,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\DependencyInjection\Attribute\AsDecorator;
@@ -75,24 +73,6 @@ class MailSender extends AbstractMailSender
         $context = Context::createDefaultContext();
         $parentId = $this->getParentId($context);
 
-        if ($parentId !== null) {
-            $criteria = (new Criteria())->addFilter(
-                new OrFilter([
-                    new EqualsFilter('id', $parentId),
-                    new EqualsFilter('parentId', $parentId),
-                ])
-            );
-            /** @var array<string> $ids */
-            $ids = $this->froshMailArchiveRepository->searchIds($criteria, $context)->getIds();
-
-            $payload = array_map(fn ($id) => [
-                'id' => (string) $id,
-                'historyLastMail' => false,
-            ], $ids);
-
-            $this->froshMailArchiveRepository->update($payload, $context);
-        }
-
         $payload = [
             'id' => $id,
             'sender' => [$message->getFrom()[0]->getAddress() => $message->getFrom()[0]->getName()],
@@ -105,7 +85,6 @@ class MailSender extends AbstractMailSender
             'customerId' => $this->getCustomerIdByMail($message->getTo()),
             'attachments' => $attachments,
             'parentId' => $parentId,
-            'historyLastMail' => true,
             'transportState' => self::TRANSPORT_STATE_PENDING,
         ];
 

@@ -21,31 +21,10 @@ class Migration1727448352AlterTable extends MigrationStep
         );
 
         $connection->executeStatement(
-            'ALTER TABLE `frosh_mail_archive` ADD `history_last_mail` TINYINT(1) NOT NULL DEFAULT 0 AFTER `transport_state`;'
+            'ALTER TABLE `frosh_mail_archive` ADD `history_group_id` BINARY(16) GENERATED ALWAYS AS (COALESCE(`parent_id`, `id`)) VIRTUAL;'
         );
 
-        // set history_last_mail column of last row of history
-        $result = $connection->executeQuery(
-            'SELECT `id` FROM `frosh_mail_archive` WHERE `parent_id` IS NULL'
-        );
-        foreach ($result->iterateColumn() as $id) {
-            $lastId = $connection->fetchOne(
-                'SELECT `id` FROM `frosh_mail_archive` WHERE `parent_id` = :parentId ORDER BY created_at DESC LIMIT 1',
-                ['parentId' => $id]
-            );
-
-            if ($lastId === false) {
-                // mail was not resend
-                $criteria = ['id' => $id];
-            } else {
-                $criteria = ['id' => $lastId];
-            }
-            $connection->update(
-                'frosh_mail_archive',
-                ['history_last_mail' => 1],
-                $criteria
-            );
-        }
+        'UPDATE frosh_mail_archive SET history_group_id = COALESCE(`parent_id`, `id`)';
     }
 
     public function updateDestructive(Connection $connection): void
